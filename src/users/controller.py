@@ -14,7 +14,8 @@ def create_user(user: models.CreateUserRequest, db: SessionDep):
 
 @router.get("/")
 def get_users(db: SessionDep):
-    pass
+    # check authorization
+    return service.get_users(db)
 
 @router.get("/{id}")
 def get_user(id: UUID, db: SessionDep):

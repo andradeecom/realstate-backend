@@ -48,12 +48,18 @@ def create_user(user: models.CreateUserRequest, db: SessionDep) -> models.Create
     )
 
 def get_users(db: SessionDep):
+    # create classes 
+    # check role 
+    # raise errors
+    # return users
     pass
 
 def get_user_by_id(id: UUID, db: SessionDep):
     pass
 
 def update_user_by_id(id: UUID, db: SessionDep):
+    # check body of request (PUT) to get fields to update
+
     pass
 
 def delete_user_by_id(id: UUID, db: SessionDep):
