@@ -1,12 +1,13 @@
-from sqlmodel import select
+from sqlmodel import Session, select
 from uuid import UUID
 import logging
 from . import models
 from . import repository
+from fastapi import Request
 from src.database.core import SessionDep
-from src.exceptions import UserAlreadyExistsError, InvalidPasswordError, InvalidEmailError, InvalidRoleError
+from src.exceptions import UserAlreadyExistsError, InvalidPasswordError, InvalidEmailError, InvalidRoleError, UserPermissionError
 from src.entities.user import User
-from src.lib.utils import validate_email, validate_password, validate_role, hash_password
+from src.lib.utils import validate_email, validate_password, validate_role, hash_password, get_current_user_id
 
 def create_user(user: models.CreateUserRequest, db: SessionDep) -> models.CreateUserResponse:
     # Validate email
@@ -47,12 +48,16 @@ def create_user(user: models.CreateUserRequest, db: SessionDep) -> models.Create
         status_code=201
     )
 
-def get_users(db: SessionDep):
+def get_users(db: SessionDep) -> list[models.GetUsersResponse]:
     # create classes 
     # check role 
+    current_user_id = get_current_user_id(request = Request)
+    current_user = db.exec(select(User).filter(User.id == current_user_id)).one_or_none()
     # raise errors
+    if  current_user.role == models.UserRole.CLIENT:
+        raise UserPermissionError("You are not authorized to get users")
     # return users
-    pass
+    return db.exec(select(User)).all()
 
 def get_user_by_id(id: UUID, db: SessionDep):
     pass

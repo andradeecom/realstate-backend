@@ -23,6 +23,8 @@ class GetUsersResponse(BaseModel):
     email: EmailStr
     role: UserRole
 
+
+
 class UpdateUserByIdRequest(BaseModel):
     username: Optional[str]
     email: Optional[EmailStr]

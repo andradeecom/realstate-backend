@@ -9,6 +9,11 @@ class UserAlreadyExistsError(UserError):
         message = "User already exists" if user_id is None else f"User with id {user_id} already exists"
         super().__init__(status_code=409, detail=message)
 
+class UserPermissionError(UserError):
+    def __init__(self, user_id=None):
+        message = "User does not have permission" if user_id is None else f"User with id {user_id} does not have permission"
+        super().__init__(status_code=403, detail=message)
+
 class InvalidEmailError(UserError):
     def __init__(self):
         super().__init__(status_code=400, detail="Invalid email format")
