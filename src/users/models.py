@@ -28,7 +28,7 @@ class GetUsersResponse(BaseModel):
 class UpdateUserByIdRequest(BaseModel):
     username: Optional[str]
     email: Optional[EmailStr]
-    password: Optional[str]
     role: Optional[UserRole]
+    password_hash: Optional[str]
 
 

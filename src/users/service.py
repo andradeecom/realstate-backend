@@ -1,9 +1,9 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, delete
 from uuid import UUID
 import logging
 from . import models
 from . import repository
-from fastapi import Request
+from fastapi import Request, Body
 from src.database.core import SessionDep
 from src.exceptions import UserAlreadyExistsError, InvalidPasswordError, InvalidEmailError, InvalidRoleError, UserPermissionError
 from src.entities.user import User
@@ -60,13 +60,28 @@ def get_users(db: SessionDep) -> list[models.GetUsersResponse]:
     return db.exec(select(User)).all()
 
 def get_user_by_id(id: UUID, db: SessionDep):
-    pass
+    return db.exec(select(User).filter(User.id == id)).one_or_none()
 
-def update_user_by_id(id: UUID, db: SessionDep):
+def update_user_by_id(id: UUID, db: SessionDep, user: models.UpdateUserByIdRequest = Body(...)):
     # check body of request (PUT) to get fields to update
+    db_user = db.exec(select(User).filter(User.id == id)).one_or_none()
+    if db_user:
+        if user.username:
+            db_user.username = user.username
+        if user.email:
+            db_user.email = user.email
+        if user.password_hash:
+            # assume this field was already password checked and that this request only contains the new password
+            # Hash new password
+            db_user.password_hash = hash_password(user.password_hash)
+        if user.role:
+            db_user.role = user.role
+        db.commit()
 
-    pass
+    return db_user.model_dump(exclude={"password_hash"})
 
 def delete_user_by_id(id: UUID, db: SessionDep):
-    pass
+    db.exec(delete(User).where(User.id == id))
+    db.commit()
+    return {f"message": "User with id '{id}' deleted successfully"}
     
