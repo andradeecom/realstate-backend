@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends, Body
 from uuid import UUID
 from src.database.core import SessionDep
 from src.users import service, models
@@ -19,12 +19,13 @@ def get_users(db: SessionDep):
 
 @router.get("/{id}")
 def get_user(id: UUID, db: SessionDep):
-    pass
+    return service.get_user_by_id(id, db)
+
 
 @router.put("/{id}")
-def update_user(id: UUID, db: SessionDep):
-    pass
+def update_user(id: UUID, db: SessionDep, user: models.UpdateUserByIdRequest = Body(...)):
+    return service.update_user_by_id(id, db, user)
 
 @router.delete("/{id}")
 def delete_user(id: UUID, db: SessionDep):
-    pass
+    return service.delete_user_by_id(id, db)

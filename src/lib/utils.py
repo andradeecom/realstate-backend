@@ -8,16 +8,7 @@ from dotenv import load_dotenv
 from src.entities.user import UserRole
 load_dotenv()
 
-def verify_token(token: str) -> dict:
-    """Verify token and return payload"""
-    jwt_secret = os.getenv("JWT_SECRET_KEY")
-    try:
-        payload = jwt.decode(token, jwt_secret, algorithms=["HS256"])
-        return payload
-    except jwt.ExpiredSignatureError:
-        raise Exception("Token has expired")
-    except jwt.InvalidTokenError:
-        raise Exception("Invalid token")
+
     
 
 def hash_password(password: str):
@@ -97,6 +88,17 @@ def create_refresh_token(user_id: str) -> str:
         "type": "refresh"
     }
     return jwt.encode(to_encode, jwt_secret, algorithm="HS256")
+
+def verify_token(token: str) -> dict:
+    """Verify token and return payload"""
+    jwt_secret = os.getenv("JWT_SECRET_KEY")
+    try:
+        payload = jwt.decode(token, jwt_secret, algorithms=["HS256"])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise Exception("Token has expired")
+    except jwt.InvalidTokenError:
+        raise Exception("Invalid token")
 
 
 def get_current_user_id(request: Request):

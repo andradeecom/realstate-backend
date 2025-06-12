@@ -51,16 +51,33 @@ def create_user(user: models.CreateUserRequest, db: SessionDep) -> models.Create
 def get_users(db: SessionDep) -> list[models.GetUsersResponse]:
     # create classes 
     # check role 
-    current_user_id = get_current_user_id(request = Request)
-    current_user = db.exec(select(User).filter(User.id == current_user_id)).one_or_none()
+    # current_user_id = get_current_user_id(request = Request)
+    # current_user = db.exec(select(User).filter(User.id == current_user_id)).one_or_none()
     # raise errors
-    if  current_user.role == models.UserRole.CLIENT:
-        raise UserPermissionError("You are not authorized to get users")
+    # if  current_user.role == models.UserRole.CLIENT:
+    #     raise UserPermissionError("You are not authorized to get users")
     # return users
-    return db.exec(select(User)).all()
+    # return db.exec(select(User)).all()
+    db_users = db.exec(select(User)).all()
+    users_response = [
+        models.GetUsersResponse(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            role=user.role
+        ) for user in db_users
+    ]
+
+    return users_response
 
 def get_user_by_id(id: UUID, db: SessionDep):
-    return db.exec(select(User).filter(User.id == id)).one_or_none()
+    db_user = db.exec(select(User).filter(User.id == id)).one_or_none()
+    return models.GetUserByIdRequest(
+        id=db_user.id,
+        username=db_user.username,
+        email=db_user.email,
+        role=db_user.role
+    )
 
 def update_user_by_id(id: UUID, db: SessionDep, user: models.UpdateUserByIdRequest = Body(...)):
     # check body of request (PUT) to get fields to update
@@ -70,18 +87,15 @@ def update_user_by_id(id: UUID, db: SessionDep, user: models.UpdateUserByIdReque
             db_user.username = user.username
         if user.email:
             db_user.email = user.email
-        if user.password_hash:
-            # assume this field was already password checked and that this request only contains the new password
-            # Hash new password
-            db_user.password_hash = hash_password(user.password_hash)
+        
         if user.role:
             db_user.role = user.role
         db.commit()
 
-    return db_user.model_dump(exclude={"password_hash"})
+    return {"message": "User updated successfully"}
 
 def delete_user_by_id(id: UUID, db: SessionDep):
     db.exec(delete(User).where(User.id == id))
     db.commit()
-    return {f"message": "User with id '{id}' deleted successfully"}
+    return {"message": f"User with id '{id}' deleted successfully"}
     

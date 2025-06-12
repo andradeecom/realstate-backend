@@ -23,12 +23,15 @@ class GetUsersResponse(BaseModel):
     email: EmailStr
     role: UserRole
 
-
+class GetUserByIdRequest(BaseModel):
+    id: UUID
+    username: str
+    email: EmailStr
+    role: UserRole
 
 class UpdateUserByIdRequest(BaseModel):
     username: Optional[str]
     email: Optional[EmailStr]
     role: Optional[UserRole]
-    password_hash: Optional[str]
 
 
