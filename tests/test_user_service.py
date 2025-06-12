@@ -1,6 +1,7 @@
 from src.users import service
 from unittest.mock import patch
-from src.exceptions import InvalidEmailError, InvalidPasswordError, InvalidRoleError, UserAlreadyExistsError
+from src.exceptions import InvalidEmailError, InvalidPasswordError, InvalidRoleError, UserAlreadyExistsError, UserNotFoundError
+import uuid
 
 """Validate the following scenarios:
     - Invalid email format (more unit tests needed)
@@ -68,3 +69,14 @@ def test_create_user_user_created_successfully(db_session, test_user_request):
     assert test_user_response.email == test_user_request.email
     assert test_user_response.role == test_user_request.role
     assert test_user_response.id is not None
+
+def test_get_user_by_id_user_not_found(db_session):
+    fake_user_id = uuid.uuid4()
+    # The service should return a UserNotFoundError
+    try:
+        service.get_user_by_id(fake_user_id, db_session)
+        assert False, "Should have raised a UserNotFoundError"
+    except UserNotFoundError as e:
+        assert e.detail == "User not found"
+        assert e.status_code == 404
+            

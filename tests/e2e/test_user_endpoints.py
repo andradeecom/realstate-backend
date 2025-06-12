@@ -52,3 +52,70 @@ def test_get_users(client):
         assert user["email"] == test_user["email"]
         assert user["role"] == test_user["role"]
 
+def test_get__user_by_id(client, test_user_request):
+    # arrange
+    created_user = client.post("/user", json=test_user_request.model_dump())
+    created_user_id = created_user.json()["id"] 
+    # act
+    response = client.get(f"/user/{created_user_id}")
+    # assert
+    assert isinstance(response.json(), dict)
+    assert response.json()["email"] == test_user_request.email
+    assert response.json()["username"] == test_user_request.username
+    assert response.json()["role"] == test_user_request.role.value
+    assert response.json()["id"] == created_user_id
+
+def test_update_user_by_id(client, test_user_request):
+    # arrange
+    created_user = client.post("/user", json=test_user_request.model_dump())
+    created_user_id = created_user.json()["id"]
+    # Maybe unneccessary to test them all... but here you go
+    modifications = [
+        {
+            "email": "modified@user.com",
+            "username": "modified",
+            "role": "admin"
+        },
+        {
+            "email": "modified@user.com",
+            "username": "modified"
+        },
+        {
+            "email": "modified@user.com",
+            "role": "admin"
+        },
+        {
+            "username": "modified",
+            "role": "admin"
+        },
+        {
+            "email": "modified@user.com"
+        },
+        {
+            "username": "modified"
+        },
+        {
+            "role": "admin"
+        }
+    ]
+    for mod in modifications:
+        # act
+        client.put(f"/user/{created_user_id}", json=mod)
+        response = client.get(f"/user/{created_user_id}")
+        # assert
+        if "username" in mod:
+            assert response.json()["username"] == mod["username"]
+        if "email" in mod:
+            assert response.json()["email"] == mod["email"]
+        if "role" in mod:
+            assert response.json()["role"] == mod["role"]
+
+def test_delete_user_by_id(client, test_user_request):
+    # arrange
+    created_user = client.post("/user", json=test_user_request.model_dump())
+    created_user_id = created_user.json()["id"]
+    # act
+    client.delete(f"/user/{created_user_id}")
+    response = client.get(f"/user/{created_user_id}")
+    assert response.status_code == 404
+    assert response.json() == {"detail": "User not found"}

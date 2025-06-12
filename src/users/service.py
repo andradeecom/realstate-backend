@@ -5,7 +5,7 @@ from . import models
 from . import repository
 from fastapi import Request, Body
 from src.database.core import SessionDep
-from src.exceptions import UserAlreadyExistsError, InvalidPasswordError, InvalidEmailError, InvalidRoleError, UserPermissionError
+from src.exceptions import UserAlreadyExistsError, InvalidPasswordError, InvalidEmailError, InvalidRoleError, UserPermissionError, UserNotFoundError
 from src.entities.user import User
 from src.lib.utils import validate_email, validate_password, validate_role, hash_password, get_current_user_id
 
@@ -72,6 +72,9 @@ def get_users(db: SessionDep) -> list[models.GetUsersResponse]:
 
 def get_user_by_id(id: UUID, db: SessionDep):
     db_user = db.exec(select(User).filter(User.id == id)).one_or_none()
+    if not db_user:
+        logging.error("User not found")
+        raise UserNotFoundError()
     return models.GetUserByIdRequest(
         id=db_user.id,
         username=db_user.username,
@@ -87,7 +90,6 @@ def update_user_by_id(id: UUID, db: SessionDep, user: models.UpdateUserByIdReque
             db_user.username = user.username
         if user.email:
             db_user.email = user.email
-        
         if user.role:
             db_user.role = user.role
         db.commit()
