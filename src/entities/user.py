@@ -24,7 +24,6 @@ class User(SQLModel, table=True):
 
     # One-to-one relationship with Token
     token: Optional["Token"] = Relationship(back_populates="user", sa_relationship_kwargs={"uselist": False})
-    properties: List["Property"] = Relationship(back_populates="owner")
     
     model_config = ConfigDict(
         arbitrary_types_allowed=True,
@@ -33,32 +32,6 @@ class User(SQLModel, table=True):
     @field_serializer('created_at', 'updated_at')
     def serialize_datetime(self, dt: datetime) -> str:
         return dt.isoformat()
-    
-class Property(SQLModel, table=True):
-    __tablename__ = "property"
-
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    address: str = Field(unique=True, min_length=10, max_length=50)
-    title:str = Field(nullable=False, min_length=5, max_length=30)
-    cover_image: str = Field(default=None) # name of file ? That's how I had it in the old version
-    created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: datetime = Field(default_factory=datetime.now)
-
-    # one to many relationship with user (can have several properties)
-    owner_id: UUID = Field(foreign_key="user.id") 
-    owner: User = Relationship(back_populates="properties")
-
-    # relationship to reservations table
-    # relationship to costs table
-
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-    )
-    @field_serializer('created_at', 'updated_at')
-    def serialize_datetime(self, dt: datetime) -> str:
-        return dt.isoformat()
-
-
 
 
 
