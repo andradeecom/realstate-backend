@@ -5,7 +5,7 @@ class UserError(HTTPException):
     pass
 
 class UserAlreadyExistsError(UserError):
-    def __init__(self):
+    def __init__(self, user_id=None):
         message = "User already exists"
         super().__init__(status_code=409, detail=message)
 
