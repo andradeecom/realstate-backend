@@ -54,7 +54,7 @@ def test_create_user_user_already_exists(db_session, test_user_request):
         assert False, "Should have raised UserAlreadyExistsError"
     except UserAlreadyExistsError as e:
         assert e.status_code == 409
-        assert f"User with id {test_user_response.id} already exists" in e.detail
+        assert f"User already exists" in e.detail
 
     # Verify the successful response from the first creation
     assert test_user_response.status_code == 201
@@ -75,6 +75,16 @@ def test_get_user_by_id_user_not_found(db_session):
     # The service should return a UserNotFoundError
     try:
         service.get_user_by_id(fake_user_id, db_session)
+        assert False, "Should have raised a UserNotFoundError"
+    except UserNotFoundError as e:
+        assert e.detail == "User not found"
+        assert e.status_code == 404
+
+def test_delete_user_by_id_user_not_found(db_session):
+    fake_user_id = uuid.uuid4()
+    # The service should return a UserNotFoundError
+    try:
+        service.delete_user_by_id(fake_user_id, db_session)
         assert False, "Should have raised a UserNotFoundError"
     except UserNotFoundError as e:
         assert e.detail == "User not found"

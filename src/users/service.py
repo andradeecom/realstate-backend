@@ -90,7 +90,10 @@ def update_user_by_id(id: UUID, db: SessionDep, user: models.UpdateUserByIdReque
     return {"message": "User updated successfully"}
 
 def delete_user_by_id(id: UUID, db: SessionDep):
-    db.exec(delete(User).where(User.id == id))
+    result = db.exec(delete(User).where(User.id == id))
+    if result == 0:
+        logging.error("User not found")
+        raise UserNotFoundError()
     db.commit()
-    return {"message": f"User with id '{id}' deleted successfully"}
+    return {"message": f"User was deleted successfully"}
     

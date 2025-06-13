@@ -5,13 +5,13 @@ class UserError(HTTPException):
     pass
 
 class UserAlreadyExistsError(UserError):
-    def __init__(self, user_id=None):
-        message = "User already exists" if user_id is None else f"User with id {user_id} already exists"
+    def __init__(self):
+        message = "User already exists"
         super().__init__(status_code=409, detail=message)
 
 class UserPermissionError(UserError):
-    def __init__(self, user_id=None):
-        message = "User does not have permission" if user_id is None else f"User with id {user_id} does not have permission"
+    def __init__(self):
+        message = "User does not have permission" 
         super().__init__(status_code=403, detail=message)
 
 class InvalidEmailError(UserError):
