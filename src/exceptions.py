@@ -5,7 +5,7 @@ class UserError(HTTPException):
     pass
 
 class UserAlreadyExistsError(UserError):
-    def __init__(self):
+    def __init__(self, user_id=None):
         message = "User already exists"
         super().__init__(status_code=409, detail=message)
 
@@ -29,5 +29,18 @@ class InvalidRoleError(UserError):
 class UserNotFoundError(UserError):
     def __init__(self, user_id=None):
         message = "User not found" if user_id is None else f"User with id {user_id} not found"
+        super().__init__(status_code=404, detail=message)
+
+
+# PROPERTIES
+
+class PropertyAlreadyExistsError(UserError):
+    def __init__(self):
+        message = "Property already exists"
+        super().__init__(status_code=409, detail=message)
+
+class PropertyNotFoundError(UserError):
+    def __init__(self, property_id=None):
+        message = "Property not found" 
         super().__init__(status_code=404, detail=message)
 

@@ -45,7 +45,7 @@ class Property(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=datetime.now)
 
     # one to many relationship with user (can have several properties)
-    owner_id: UUID = Field(foreign_key="user.id") 
+    owner_id: UUID = Field(default=None, nullable=True, foreign_key="user.id") 
     owner: User = Relationship(back_populates="properties")
 
     # relationship to reservations table
