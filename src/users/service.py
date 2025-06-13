@@ -1,4 +1,5 @@
 from sqlmodel import Session, select, delete
+from datetime import datetime
 from uuid import UUID
 import logging
 from . import models
@@ -49,15 +50,6 @@ def create_user(user: models.CreateUserRequest, db: SessionDep) -> models.Create
     )
 
 def get_users(db: SessionDep) -> list[models.GetUsersResponse]:
-    # create classes 
-    # check role 
-    # current_user_id = get_current_user_id(request = Request)
-    # current_user = db.exec(select(User).filter(User.id == current_user_id)).one_or_none()
-    # raise errors
-    # if  current_user.role == models.UserRole.CLIENT:
-    #     raise UserPermissionError("You are not authorized to get users")
-    # return users
-    # return db.exec(select(User)).all()
     db_users = db.exec(select(User)).all()
     users_response = [
         models.GetUsersResponse(
@@ -92,6 +84,7 @@ def update_user_by_id(id: UUID, db: SessionDep, user: models.UpdateUserByIdReque
             db_user.email = user.email
         if user.role:
             db_user.role = user.role
+        db_user.updated_at = datetime.now().isoformat()
         db.commit()
 
     return {"message": "User updated successfully"}

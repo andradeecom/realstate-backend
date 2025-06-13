@@ -34,15 +34,18 @@ def init_db():
     create_schema(GLOBAL_SCHEMA)
     
     # Create tables in global schema
-    from src.entities.user import User, Token
+    from src.entities.user import User, Token, Property
     
     # Set schema for User and Token models
     User.__table__.schema = GLOBAL_SCHEMA
     Token.__table__.schema = GLOBAL_SCHEMA
+    Property.__table__.schema = GLOBAL_SCHEMA
     
-    # Create all tables
+    # Create all tables at once
     SQLModel.metadata.create_all(engine)
+    
     print("All tables created successfully")
+
 
 def get_session():
     """Get a database session"""
