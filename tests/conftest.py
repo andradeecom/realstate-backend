@@ -6,6 +6,7 @@ from sqlmodel import create_engine, SQLModel, Session
 from sqlalchemy.schema import DropSchema
 from sqlalchemy.ext.compiler import compiles
 from src.users.models import CreateUserRequest
+from src.properties.models import CreatePropertyRequest
 from src.entities.user import UserRole
 
 import os
@@ -66,6 +67,15 @@ def test_user_request():
         password="Password123!",
         role=UserRole.CLIENT
     )
+
+@pytest.fixture
+def test_property_request():
+    return CreatePropertyRequest(
+        title="test+property",
+        address="test_address",
+        cover_image="test_image.path"
+    )
+
 
 @pytest.fixture
 def client(db_session):

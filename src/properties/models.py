@@ -17,3 +17,13 @@ class GetPropertiesResponse(BaseModel):
     id: UUID
     title: str
     address: str
+
+class GetPropertyByIdResponse(BaseModel):
+    id: UUID
+    title: str
+    address: str
+
+class UpdatePropertyRequest(BaseModel):
+    title: Optional[str]
+    address: Optional[str]
+    cover_image: Optional[str]

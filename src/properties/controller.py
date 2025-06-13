@@ -20,6 +20,10 @@ def get_properties(db: SessionDep):
 def get_property_by_id(id: UUID, db: SessionDep):
     return service.get_property_by_id(id, db)
 
+@router.put("/{id}")
+def update_property(id: UUID, property: models.UpdatePropertyRequest, db: SessionDep):
+    return service.update_property_by_id(id, property, db)
+
 @router.delete("/{id}")
 def delete_property(id: UUID, db: SessionDep):
     return service.delete_property_by_id(id, db)

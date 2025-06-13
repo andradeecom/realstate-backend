@@ -2,6 +2,7 @@ from sqlmodel import Session, select, delete
 from src.entities.user import Property
 from uuid import UUID
 from . import models, repository
+from datetime import datetime
 import logging
 from src.entities.user import Property
 from src.database.core import SessionDep
@@ -55,6 +56,19 @@ def get_property_by_id(id: UUID, db: SessionDep) -> models.GetPropertiesResponse
         logging.error("Property not found")
         raise PropertyNotFoundError
     
+def update_property_by_id(id: UUID, property: models.UpdatePropertyRequest, db: SessionDep):
+    db_property = db.exec(select(Property).filter(Property.id == id)).one_or_none()
+    if db_property:
+        if property.title:
+            db_property.title = property.title
+        if property.address:
+            db_property.address = property.address
+        if property.cover_image:
+            db_property.cover_image = property.cover_image
+        db_property.updated_at = datetime.now().isoformat()  
+        db.commit()
+
+    return {"message": "Property updated successfully"}  
 def delete_property_by_id(id: UUID, db: SessionDep):
     db_property = db.exec(select(Property).filter(Property.id == id)).one_or_none()
     if not db_property:
