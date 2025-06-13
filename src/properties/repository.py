@@ -6,3 +6,6 @@ from src.entities.user import Property
 def create_property(property: models.CreatePropertyRequest, db: SessionDep) -> None:
     db.add(property)
     db.commit()
+
+def get_properties(db: SessionDep) -> list[models.GetPropertiesResponse]:
+    return db.exec(select(Property)).all()
