@@ -1,22 +1,22 @@
 import os
 import re
+from uuid import UUID
 import jwt
-import bcrypt
+from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from src.entities.user import UserRole
 load_dotenv()
 
-def hash_password(password: str):
-    """Hash password using bcrypt"""
-    # Maybe we can change this later to use passlib -> pip install "passlib[bcrypt]"
-    salt = bcrypt.gensalt(12)
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed_password.decode('utf-8')
+crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def verify_password(password: str, hashed_password: str):
+def hash_password(plain_password: str):
+    """Hash password"""
+    return crypt_context.hash(plain_password)
+
+def verify_password(plain_password: str, hashed_password: str):
     """Verify password against hashed password"""
-    return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+    return crypt_context.verify(plain_password, hashed_password)
 
 def validate_email(email: str) -> bool:
     """Validate email format"""
@@ -59,28 +59,28 @@ def validate_role(role: str) -> bool:
         return False
     return True
 
-def create_access_token(user_id: str) -> str:
-    """Create access token with expiration (If not provided in .env, default to 15 minutes)"""
-    jwt_secret = os.getenv("JWT_SECRET_KEY")
-    access_token_expire = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15"))
-    
-    expire = datetime.now(timezone.utc) + timedelta(minutes=access_token_expire)
-    to_encode = {
-        "user_id": user_id,
-        "exp": int(expire.timestamp()),
-        "type": "access"
-    }
-    return jwt.encode(to_encode, jwt_secret, algorithm="HS256")
+def create_token(user_id: UUID, token_type: str, expires_delta: timedelta | None = None) -> str:
+    """
+    Create JWT token
 
-def create_refresh_token(user_id: str) -> str:
-    """Create refresh token with expiration (If not provided in .env, default to 7 days)"""
-    jwt_secret = os.getenv("JWT_REFRESH_SECRET_KEY")
-    refresh_token_expire = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
+    Args:
+        user_id (UUID): User ID
+        token_type (str): Token type
+        expires_delta (timedelta | None, optional): Expiration time delta. Defaults to None.
+    Returns:
+        str: JWT token
+    """
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     
-    expire = datetime.now(timezone.utc) + timedelta(days=refresh_token_expire)
+    jwt_secret = os.getenv("JWT_SECRET_KEY")
+    jwt_algorithm = os.getenv("JWT_ALGORITHM")
+    
     to_encode = {
-        "user_id": user_id,
+        "user_id": str(user_id),
         "exp": int(expire.timestamp()),
-        "type": "refresh"
+        "type": token_type
     }
-    return jwt.encode(to_encode, jwt_secret, algorithm="HS256")
+    return jwt.encode(to_encode, jwt_secret, jwt_algorithm)

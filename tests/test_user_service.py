@@ -1,4 +1,4 @@
-from src.users import service
+from src.domain.users import service
 from unittest.mock import patch
 from src.exceptions import InvalidEmailError, InvalidPasswordError, InvalidRoleError, UserAlreadyExistsError
 
@@ -12,7 +12,7 @@ from src.exceptions import InvalidEmailError, InvalidPasswordError, InvalidRoleE
 
 def test_create_user_invalid_email(db_session, test_user_request):
     # Mock the validate_email function to return False
-    with patch('src.users.service.validate_email', return_value=False):
+    with patch('src.domain.users.service.validate_email', return_value=False):
         # The service should raise an InvalidEmailError
         try:
             service.create_user(test_user_request, db_session)
@@ -24,7 +24,7 @@ def test_create_user_invalid_email(db_session, test_user_request):
 
 def test_create_user_invalid_password(db_session, test_user_request):
     # Mock the validate_password function to return False
-    with patch('src.users.service.validate_password', return_value=False):
+    with patch('src.domain.users.service.validate_password', return_value=False):
         # The service should raise an InvalidPasswordError
         try:
             service.create_user(test_user_request, db_session)
@@ -35,7 +35,7 @@ def test_create_user_invalid_password(db_session, test_user_request):
     
 def test_create_user_invalid_role(db_session, test_user_request):
     # Mock the role validation function to return False
-    with patch('src.users.service.validate_role', return_value=False):
+    with patch('src.domain.users.service.validate_role', return_value=False):
         try:
             service.create_user(test_user_request, db_session)
             assert False, "Should have raised InvalidRoleError"

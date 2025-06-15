@@ -26,3 +26,6 @@ class UserNotFoundError(UserError):
         message = "User not found" if user_id is None else f"User with id {user_id} not found"
         super().__init__(status_code=404, detail=message)
 
+class UserCreationError(UserError):
+    def __init__(self):
+        super().__init__(status_code=500, detail="User creation failed")

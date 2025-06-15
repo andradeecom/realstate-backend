@@ -1,3 +1,5 @@
+import os
+import uuid
 import pytest
 from fastapi.testclient import TestClient
 from src.main import app
@@ -5,17 +7,8 @@ from src.database.core import create_schema
 from sqlmodel import create_engine, SQLModel, Session
 from sqlalchemy.schema import DropSchema
 from sqlalchemy.ext.compiler import compiles
-from src.users.models import CreateUserRequest
+from src.domain.users.models import CreateUserRequest
 from src.entities.user import UserRole
-
-import os
-from dotenv import load_dotenv
-import uuid
-
-app_env = os.getenv("APP_ENV", "test")
-env_file = f"env/.env.{app_env}"
-print(f"Loading environment variables from {env_file}")
-load_dotenv(env_file)
 
 TEST_SCHEMA = "test_schema"
 

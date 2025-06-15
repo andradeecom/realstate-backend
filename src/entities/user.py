@@ -39,7 +39,7 @@ class Token(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     access_token: str
     refresh_token: str
-    token_type: str = "bearer"
+    token_type: str = "Bearer"
     expires_at: datetime
     created_at: datetime = Field(default_factory=datetime.now)
     
@@ -59,7 +59,7 @@ class Token(SQLModel, table=True):
 class TokenResponse(SQLModel):
     access_token: str
     refresh_token: str
-    token_type: str = "bearer"
+    token_type: str = "Bearer"
     expires_at: datetime
     
     model_config = ConfigDict()

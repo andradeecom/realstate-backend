@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
 from uuid import UUID
 from src.database.core import SessionDep
-from src.users import service, models
+from src.domain.users import service, models
 
 router = APIRouter(
     prefix="/user",
