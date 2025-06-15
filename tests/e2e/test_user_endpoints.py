@@ -52,7 +52,7 @@ def test_get_users(client):
         assert user["email"] == test_user["email"]
         assert user["role"] == test_user["role"]
 
-def test_get__user_by_id(client, test_user_request):
+def test_get_user_by_id(client, test_user_request):
     # arrange
     created_user = client.post("/user", json=test_user_request.model_dump())
     created_user_id = created_user.json()["id"] 

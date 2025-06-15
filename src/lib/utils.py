@@ -6,10 +6,8 @@ from fastapi import Request, Depends
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from src.entities.user import UserRole
-load_dotenv()
 
-
-    
+load_dotenv() 
 
 def hash_password(password: str):
     """Hash password using bcrypt"""
@@ -88,28 +86,3 @@ def create_refresh_token(user_id: str) -> str:
         "type": "refresh"
     }
     return jwt.encode(to_encode, jwt_secret, algorithm="HS256")
-
-def verify_token(token: str) -> dict:
-    """Verify token and return payload"""
-    jwt_secret = os.getenv("JWT_SECRET_KEY")
-    try:
-        payload = jwt.decode(token, jwt_secret, algorithms=["HS256"])
-        return payload
-    except jwt.ExpiredSignatureError:
-        raise Exception("Token has expired")
-    except jwt.InvalidTokenError:
-        raise Exception("Invalid token")
-
-
-def get_current_user_id(request: Request):
-    # Assuming the user ID is stored in the JWT token
-    token = request.headers.get("Authorization")
-    if token:
-        payload = verify_token(token)
-        return payload["user_id"]
-    return None
-
-def get_current_user_id_dependency():
-    def get_current_user_id(request: Request):
-        return get_current_user_id(request)
-    return Depends(get_current_user_id)
