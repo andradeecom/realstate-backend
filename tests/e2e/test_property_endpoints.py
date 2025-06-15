@@ -92,7 +92,11 @@ def test_update_property_by_id(client, test_property_request):
     
     for mod in modifications:
         # act
-        client.put(f"/property/{created_property_id}", json=mod)
+        put_response = client.put(f"/property/{created_property_id}", json=mod)
+
+        # Check for correct status code and response
+        assert put_response.status_code == 200, f"Update failed with status {put_response.status_code} and detail: {put_response.json()}"
+        
         response = client.get(f"/property/{created_property_id}")
         # assert
         if "title" in mod:
