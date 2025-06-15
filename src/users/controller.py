@@ -22,7 +22,7 @@ def get_user(id: UUID, db: SessionDep):
     return service.get_user_by_id(id, db)
 
 @router.put("/{id}")
-def update_user(id: UUID, db: SessionDep, user: models.UpdateUserByIdRequest = Body(...)):
+def update_user(id: UUID, db: SessionDep, user: models.UpdateUserByIdRequest):
     return service.update_user_by_id(id, db, user)
 
 @router.delete("/{id}")

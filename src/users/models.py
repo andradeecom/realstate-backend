@@ -30,8 +30,8 @@ class GetUserByIdRequest(BaseModel):
     role: UserRole
 
 class UpdateUserByIdRequest(BaseModel):
-    username: Optional[str]
-    email: Optional[EmailStr]
-    role: Optional[UserRole]
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role: Optional[UserRole] = None
 
 

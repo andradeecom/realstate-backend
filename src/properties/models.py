@@ -25,6 +25,6 @@ class GetPropertyByIdResponse(BaseModel):
     address: str
 
 class UpdatePropertyByIdRequest(BaseModel):
-    title: Optional[str]
-    address: Optional[str]
-    cover_image: Optional[str]
+    title: Optional[str] = None
+    address: Optional[str] = None
+    cover_image: Optional[str] = None
