@@ -8,7 +8,7 @@ from fastapi import Request, Body
 from src.database.core import SessionDep
 from src.exceptions import UserAlreadyExistsError, InvalidPasswordError, InvalidEmailError, InvalidRoleError, UserPermissionError, UserNotFoundError
 from src.entities.user import User
-from src.lib.utils import validate_email, validate_password, validate_role, hash_password, get_current_user_id
+from src.lib.utils import validate_email, validate_password, validate_role, hash_password
 
 def create_user(user: models.CreateUserRequest, db: SessionDep) -> models.CreateUserResponse:
     # Validate email

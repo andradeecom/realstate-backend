@@ -100,7 +100,11 @@ def test_update_user_by_id(client, test_user_request):
     ]
     for mod in modifications:
         # act
-        client.put(f"/user/{created_user_id}", json=mod)
+        put_response = client.put(f"/user/{created_user_id}", json=mod)
+
+        # Check for correct status code and response
+        assert put_response.status_code == 200, f"Update failed with status {put_response.status_code} and detail: {put_response.json()}"
+
         response = client.get(f"/user/{created_user_id}")
         # assert
         if "username" in mod:
