@@ -36,7 +36,3 @@ app.add_middleware(
 )
 
 register_routes(app)
-
-@app.get("/")
-def read_root():
-    return {"msg": "Welcome to the Real Estate API"}

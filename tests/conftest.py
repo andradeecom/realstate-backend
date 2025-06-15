@@ -9,6 +9,8 @@ from sqlalchemy.schema import DropSchema
 from sqlalchemy.ext.compiler import compiles
 from src.domain.users.models import CreateUserRequest
 from src.entities.user import UserRole
+from src.lib.utils import generate_auth_token
+from datetime import timedelta
 
 TEST_SCHEMA = "test_schema"
 
@@ -59,6 +61,34 @@ def test_user_request():
         password="Password123!",
         role=UserRole.CLIENT
     )
+
+@pytest.fixture
+def admin_user(db_session):
+    """Create an admin user for testing"""
+    from src.lib.utils import crypt_context
+    from src.entities.user import User
+    
+    # Create admin user with properly hashed password
+    admin = User(
+        username="admin_user",
+        email="admin@example.com",
+        password_hash=crypt_context.hash("Admin123!"),  # Properly hash the password
+        role=UserRole.ADMIN
+    )
+    db_session.add(admin)
+    db_session.commit()
+    db_session.refresh(admin)
+    return admin
+
+@pytest.fixture
+def admin_token(admin_user):
+    """Generate a token for the admin user"""
+    return generate_auth_token(admin_user.id, "auth", timedelta(minutes=30))
+
+@pytest.fixture
+def auth_headers(admin_token):
+    """Create authorization headers with admin token"""
+    return {"Authorization": f"Bearer {admin_token}"}
 
 @pytest.fixture
 def client(db_session):

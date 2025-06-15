@@ -21,7 +21,7 @@ def create_user(user_input: models.CreateUserRequest, db: SessionDep) -> models.
         logging.error("Invalid role format")
         raise InvalidRoleError()
     
-    existing_user = repository.existing_user(user_input.email, db)
+    existing_user = repository.get_user_by_email(user_input.email, db)
 
     if existing_user:
         logging.error("User already exists")
@@ -52,14 +52,69 @@ def create_user(user_input: models.CreateUserRequest, db: SessionDep) -> models.
     )
 
 def get_users(db: SessionDep):
-    pass
+    """Get all users"""
+    return repository.get_all_users(db)
 
 def get_user_by_id(id: UUID, db: SessionDep):
-    pass
+    """Get a user by ID"""
+    from src.exceptions import UserNotFoundError
+    
+    user = repository.get_user_by_id(id, db)
+    if not user:
+        raise UserNotFoundError(user_id=id)
+    return user
 
-def update_user_by_id(id: UUID, db: SessionDep):
-    pass
+def update_user_by_id(id: UUID, user_update: models.UpdateUserRequest, db: SessionDep) -> models.UpdateUserResponse:
+    """Update a user by ID"""
+    from src.exceptions import UserNotFoundError, InvalidEmailError, InvalidPasswordError, InvalidRoleError
+    
+    # Get the existing user
+    user = repository.get_user_by_id(id, db)
+    if not user:
+        raise UserNotFoundError(user_id=id)
+    
+    # Validate email if provided
+    if user_update.email is not None:
+        if not validate_email(user_update.email):
+            raise InvalidEmailError()
+        # Check if email already exists for another user
+        existing_user = repository.get_user_by_email(user_update.email, db)
+        if existing_user and existing_user.id != id:
+            raise UserAlreadyExistsError(user_id=existing_user.id)
+    
+    # Validate password if provided
+    if user_update.password is not None:
+        if not validate_password(user_update.password):
+            raise InvalidPasswordError()
+        # Hash the new password
+        user_update.password = hash_password(user_update.password)
+    
+    # Validate role if provided
+    if user_update.role is not None:
+        if not validate_role(user_update.role):
+            raise InvalidRoleError()
+    
+    # Update the user
+    updated_user = repository.update_user(id, user_update, db)
+    
+    return models.UpdateUserResponse(
+        id=updated_user.id,
+        username=updated_user.username,
+        email=updated_user.email,
+        role=updated_user.role,
+        is_active=updated_user.is_active,
+        message="User updated successfully"
+    )
 
 def delete_user_by_id(id: UUID, db: SessionDep):
-    pass
+    """Delete a user by ID"""
+    from src.exceptions import UserNotFoundError
+    
+    user = repository.get_user_by_id(id, db)
+    if not user:
+        raise UserNotFoundError(user_id=id)
+    
+    repository.delete_user(id, db)
+    
+    return {"message": f"User with id {id} deleted successfully"}
     

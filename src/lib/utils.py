@@ -1,12 +1,18 @@
-import os
 import re
 from uuid import UUID
 import jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-from dotenv import load_dotenv
+from typing import Dict, Any
 from src.entities.user import UserRole
+import os
+from dotenv import load_dotenv
+
 load_dotenv()
+
+SECRET_KEY: str = os.getenv("JWT_SECRET_KEY", "secret")
+ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15"))
 
 crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -59,7 +65,7 @@ def validate_role(role: str) -> bool:
         return False
     return True
 
-def create_token(user_id: UUID, token_type: str, expires_delta: timedelta | None = None) -> str:
+def generate_auth_token(user_id: UUID, token_type: str, expires_delta: timedelta | None = None) -> str:
     """
     Create JWT token
 
@@ -70,17 +76,36 @@ def create_token(user_id: UUID, token_type: str, expires_delta: timedelta | None
     Returns:
         str: JWT token
     """
+    
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    
-    jwt_secret = os.getenv("JWT_SECRET_KEY")
-    jwt_algorithm = os.getenv("JWT_ALGORITHM")
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode = {
-        "user_id": str(user_id),
+        "sub": str(user_id),     # Using sub claim as per JWT standards
         "exp": int(expire.timestamp()),
         "type": token_type
     }
-    return jwt.encode(to_encode, jwt_secret, jwt_algorithm)
+    return jwt.encode(to_encode, SECRET_KEY, ALGORITHM)
+
+
+def verify_auth_token(token: str) -> Dict[str, Any]:
+    """
+    Verify and decode JWT token
+    
+    Args:
+        token (str): JWT token
+        
+    Returns:
+        Dict[str, Any]: Token payload
+        
+    Raises:
+        jwt.PyJWTError: If token is invalid
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.PyJWTError:
+        # Let the caller handle the exception
+        raise
