@@ -38,7 +38,8 @@ def get_properties(db: SessionDep) -> list[models.GetPropertiesResponse]:
         models.GetPropertiesResponse(
             id=property.id,
             title=property.title,
-            address=property.address
+            address=property.address,
+            cover_image=property.cover_image
         ) for property in db_properties
     ]
 
@@ -50,13 +51,14 @@ def get_property_by_id(id: UUID, db: SessionDep) -> models.GetPropertiesResponse
         return models.GetPropertiesResponse(
             id=db_property.id,
             title=db_property.title,
-            address=db_property.address
+            address=db_property.address,
+            cover_image=db_property.cover_image
         )
     else:
         logging.error("Property not found")
         raise PropertyNotFoundError
     
-def update_property_by_id(id: UUID, property: models.UpdatePropertyRequest, db: SessionDep):
+def update_property_by_id(id: UUID, property: models.UpdatePropertyByIdRequest, db: SessionDep):
     db_property = db.exec(select(Property).filter(Property.id == id)).one_or_none()
     if db_property:
         if property.title:
@@ -69,6 +71,7 @@ def update_property_by_id(id: UUID, property: models.UpdatePropertyRequest, db: 
         db.commit()
 
     return {"message": "Property updated successfully"}  
+
 def delete_property_by_id(id: UUID, db: SessionDep):
     db_property = db.exec(select(Property).filter(Property.id == id)).one_or_none()
     if not db_property:

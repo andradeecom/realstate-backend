@@ -74,7 +74,7 @@ def get_user_by_id(id: UUID, db: SessionDep):
         role=db_user.role
     )
 
-def update_user_by_id(id: UUID, db: SessionDep, user: models.UpdateUserByIdRequest = Body(...)):
+def update_user_by_id(id: UUID, db: SessionDep, user: models.UpdateUserByIdRequest):
     # check body of request (PUT) to get fields to update
     db_user = db.exec(select(User).filter(User.id == id)).one_or_none()
     if db_user:

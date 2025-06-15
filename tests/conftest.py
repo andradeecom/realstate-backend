@@ -39,11 +39,12 @@ def db_session():
     create_schema(test_schema_name)
 
     # Import models here to avoid circular imports
-    from src.entities.user import User, Token
+    from src.entities.user import User, Token, Property
 
     # Set schema for User and Token models
     User.__table__.schema = test_schema_name
     Token.__table__.schema = test_schema_name
+    Property.__table__.schema = test_schema_name
     
     SQLModel.metadata.create_all(testing_engine)
 
@@ -71,7 +72,7 @@ def test_user_request():
 @pytest.fixture
 def test_property_request():
     return CreatePropertyRequest(
-        title="test+property",
+        title="test property",
         address="test_address",
         cover_image="test_image.path"
     )

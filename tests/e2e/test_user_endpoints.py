@@ -69,7 +69,6 @@ def test_update_user_by_id(client, test_user_request):
     # arrange
     created_user = client.post("/user", json=test_user_request.model_dump())
     created_user_id = created_user.json()["id"]
-    # Maybe unneccessary to test them all... but here you go
     modifications = [
         {
             "email": "modified@user.com",

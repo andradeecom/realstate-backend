@@ -55,6 +55,7 @@ def test_get_property_by_id(client, test_property_request):
     assert response.json()["id"] == created_property_id
     assert response.json()["title"] == test_property_request.title
     assert response.json()["address"] == test_property_request.address
+    assert response.json()["cover_image"] == test_property_request.cover_image  
 
 def test_update_property_by_id(client, test_property_request):
     # arrange
