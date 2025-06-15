@@ -1,6 +1,6 @@
 from uuid import UUID, uuid4
 from datetime import datetime
-from typing import Optional, Dict, Any, Annotated
+from typing import Optional, Dict, Any, Annotated, List
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import EmailStr, ConfigDict, field_serializer
 from enum import Enum
@@ -32,6 +32,8 @@ class User(SQLModel, table=True):
     @field_serializer('created_at', 'updated_at')
     def serialize_datetime(self, dt: datetime) -> str:
         return dt.isoformat()
+
+
 
 class Token(SQLModel, table=True):
     __tablename__ = "token"

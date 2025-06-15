@@ -2,10 +2,12 @@ import os
 import re
 import jwt
 import bcrypt
+from fastapi import Request, Depends
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from src.entities.user import UserRole
-load_dotenv()
+
+load_dotenv() 
 
 def hash_password(password: str):
     """Hash password using bcrypt"""

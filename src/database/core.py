@@ -40,9 +40,11 @@ def init_db():
     User.__table__.schema = GLOBAL_SCHEMA
     Token.__table__.schema = GLOBAL_SCHEMA
     
-    # Create all tables
+    # Create all tables at once
     SQLModel.metadata.create_all(engine)
+    
     print("All tables created successfully")
+
 
 def get_session():
     """Get a database session"""

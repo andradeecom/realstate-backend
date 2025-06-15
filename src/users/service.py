@@ -1,10 +1,12 @@
-from sqlmodel import select
+from sqlmodel import Session, select, delete
+from datetime import datetime
 from uuid import UUID
 import logging
 from . import models
 from . import repository
+from fastapi import Request, Body
 from src.database.core import SessionDep
-from src.exceptions import UserAlreadyExistsError, InvalidPasswordError, InvalidEmailError, InvalidRoleError
+from src.exceptions import UserAlreadyExistsError, InvalidPasswordError, InvalidEmailError, InvalidRoleError, UserPermissionError, UserNotFoundError
 from src.entities.user import User
 from src.lib.utils import validate_email, validate_password, validate_role, hash_password
 
@@ -47,15 +49,52 @@ def create_user(user: models.CreateUserRequest, db: SessionDep) -> models.Create
         status_code=201
     )
 
-def get_users(db: SessionDep):
-    pass
+def get_users(db: SessionDep) -> list[models.GetUsersResponse]:
+    db_users = db.exec(select(User)).all()
+    users_response = [
+        models.GetUsersResponse(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            role=user.role
+        ) for user in db_users
+    ]
+
+    return users_response
 
 def get_user_by_id(id: UUID, db: SessionDep):
-    pass
+    db_user = db.exec(select(User).filter(User.id == id)).one_or_none()
+    if not db_user:
+        logging.error("User not found")
+        raise UserNotFoundError()
+    return models.GetUserByIdRequest(
+        id=db_user.id,
+        username=db_user.username,
+        email=db_user.email,
+        role=db_user.role
+    )
 
-def update_user_by_id(id: UUID, db: SessionDep):
-    pass
+def update_user_by_id(id: UUID, db: SessionDep, user: models.UpdateUserByIdRequest = Body(...)):
+    # check body of request (PUT) to get fields to update
+    db_user = db.exec(select(User).filter(User.id == id)).one_or_none()
+    if db_user:
+        if user.username:
+            db_user.username = user.username
+        if user.email:
+            db_user.email = user.email
+        if user.role:
+            db_user.role = user.role
+        db_user.updated_at = datetime.now().isoformat()
+        db.commit()
+
+    return {"message": "User updated successfully"}
 
 def delete_user_by_id(id: UUID, db: SessionDep):
-    pass
+    db_user = db.exec(select(User).filter(User.id == id)).one_or_none()
+    if not db_user:
+        logging.error("User not found")
+        raise UserNotFoundError()
+    db.exec(delete(User).where(User.id == id))
+    db.commit()
+    return {"message": f"User was deleted successfully"}
     

@@ -15,3 +15,23 @@ class CreateUserResponse(BaseModel):
     role: UserRole
     message: str
     status_code: int
+
+
+class GetUsersResponse(BaseModel):
+    id: UUID
+    username: str
+    email: EmailStr
+    role: UserRole
+
+class GetUserByIdRequest(BaseModel):
+    id: UUID
+    username: str
+    email: EmailStr
+    role: UserRole
+
+class UpdateUserByIdRequest(BaseModel):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role: Optional[UserRole] = None
+
+
