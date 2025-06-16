@@ -2,7 +2,8 @@ from uuid import UUID
 from src.entities.user import User
 from src.database.core import SessionDep
 from sqlmodel import select
-from src.domain.users.models import UpdateUserRequest
+from src.domain.users.models import UpdateUserRequest, UpdatePasswordRequest
+from src.lib.utils import hash_password
 
 def get_user_by_id(id: UUID, db: SessionDep) -> User:
     """Get a user by ID"""
@@ -33,8 +34,6 @@ def update_user(id: UUID, user_update: UpdateUserRequest, db: SessionDep) -> Use
         user.username = user_update.username
     if user_update.email is not None:
         user.email = user_update.email
-    if user_update.password is not None:
-        user.password_hash = user_update.password  # Already hashed in service
     if user_update.role is not None:
         user.role = user_update.role
     if user_update.is_active is not None:
@@ -46,6 +45,20 @@ def update_user(id: UUID, user_update: UpdateUserRequest, db: SessionDep) -> Use
     
     return user
 
+def update_password(id: UUID, password_update: UpdatePasswordRequest, db: SessionDep) -> User:
+    """Update a user's password"""
+    user = get_user_by_id(id, db)
+    
+    # Update user attributes if provided in the request
+    if password_update.new_password is not None:
+        user.password_hash = hash_password(password_update.new_password)
+    
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    
+    return user
+    
 def delete_user(id: UUID, db: SessionDep) -> None:
     """Delete a user"""
     user = get_user_by_id(id, db)

@@ -12,12 +12,12 @@ router = APIRouter(
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user(
-    user: models.CreateUserRequest, 
+    user_input: models.CreateUserRequest, 
     db: SessionDep,
     current_user: User = Depends(allow_superadmin_admin)
 ):
     """Create a new user (admin only)"""
-    return service.create_user(user, db)
+    return service.create_user(user_input, db)
 
 @router.get("/")
 def get_users(
@@ -39,7 +39,7 @@ def get_user(
 @router.put("/{id}")
 def update_user(
     id: UUID, 
-    user_update: models.UpdateUserRequest,
+    user_input: models.UpdateUserRequest,
     db: SessionDep,
     permission_checker = Depends(allow_update_own_account)
 ):
@@ -54,7 +54,20 @@ def update_user(
     # This will raise an exception if the current user doesn't have permission
     current_user = permission_checker(id)
     
-    return service.update_user_by_id(id, user_update, db)
+    return service.update_user_by_id(id, user_input, db)
+
+@router.put("/{id}/password")
+def update_password(
+    id: UUID, 
+    password_input: models.UpdatePasswordRequest,
+    db: SessionDep,
+    permission_checker = Depends(allow_update_own_account)
+):
+    """Update a user's password"""
+    # This will raise an exception if the current user doesn't have permission
+    current_user = permission_checker(id)
+    
+    return service.update_password_by_id(id, password_input, db)
 
 @router.delete("/{id}")
 def delete_user(

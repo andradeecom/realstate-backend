@@ -12,7 +12,7 @@ from src.exceptions import ForbiddenError, CredentialsError
 from src.lib.utils import verify_auth_token
 
 # OAuth2 scheme for token extraction
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/signin")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token", scheme_name="Email & Password Auth")
 
 # Token data model
 class TokenData(BaseModel):

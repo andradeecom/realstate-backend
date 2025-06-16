@@ -16,12 +16,23 @@ class CreateUserResponse(BaseModel):
     message: str
     status_code: int
 
+class GetUserResponse(BaseModel):
+    id: UUID
+    username: Optional[str]
+    email: EmailStr
+    role: UserRole
+    is_active: bool
+    message: str
+
 class UpdateUserRequest(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
-    password: Optional[str] = None
     role: Optional[UserRole] = None
     is_active: Optional[bool] = None
+
+class UpdatePasswordRequest(BaseModel):
+    old_password: str
+    new_password: str
 
 class UpdateUserResponse(BaseModel):
     id: UUID

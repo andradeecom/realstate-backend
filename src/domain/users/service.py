@@ -5,7 +5,7 @@ from . import repository
 from src.database.core import SessionDep
 from src.exceptions import UserAlreadyExistsError, InvalidPasswordError, InvalidEmailError, InvalidRoleError, UserCreationError
 from src.entities.user import User
-from src.lib.utils import validate_email, validate_password, validate_role, hash_password
+from src.lib.utils import validate_email, validate_password, validate_role, hash_password, verify_password
 
 def create_user(user_input: models.CreateUserRequest, db: SessionDep) -> models.CreateUserResponse:
     # Validate email
@@ -55,18 +55,35 @@ def get_users(db: SessionDep):
     """Get all users"""
     return repository.get_all_users(db)
 
-def get_user_by_id(id: UUID, db: SessionDep):
+def get_user_by_id(id: UUID, db: SessionDep) -> models.GetUserResponse:
     """Get a user by ID"""
     from src.exceptions import UserNotFoundError
     
     user = repository.get_user_by_id(id, db)
     if not user:
         raise UserNotFoundError(user_id=id)
+    
+    return models.GetUserResponse(
+        id=user.id,
+        username=user.username,
+        email=user.email,
+        role=user.role,
+        is_active=user.is_active,
+        message="User retrieved successfully"
+    )
+
+def get_user_by_email(email: str, db: SessionDep):
+    """Get a user by email"""
+    from src.exceptions import UserNotFoundError
+    
+    user = repository.get_user_by_email(email, db)
+    if not user:
+        raise UserNotFoundError(user_id=email)
     return user
 
-def update_user_by_id(id: UUID, user_update: models.UpdateUserRequest, db: SessionDep) -> models.UpdateUserResponse:
+def update_user_by_id(id: UUID, user_input: models.UpdateUserRequest, db: SessionDep) -> models.UpdateUserResponse:
     """Update a user by ID"""
-    from src.exceptions import UserNotFoundError, InvalidEmailError, InvalidPasswordError, InvalidRoleError
+    from src.exceptions import UserNotFoundError, InvalidEmailError, InvalidRoleError
     
     # Get the existing user
     user = repository.get_user_by_id(id, db)
@@ -74,28 +91,21 @@ def update_user_by_id(id: UUID, user_update: models.UpdateUserRequest, db: Sessi
         raise UserNotFoundError(user_id=id)
     
     # Validate email if provided
-    if user_update.email is not None:
-        if not validate_email(user_update.email):
+    if user_input.email is not None:
+        if not validate_email(user_input.email):
             raise InvalidEmailError()
         # Check if email already exists for another user
-        existing_user = repository.get_user_by_email(user_update.email, db)
+        existing_user = repository.get_user_by_email(user_input.email, db)
         if existing_user and existing_user.id != id:
             raise UserAlreadyExistsError(user_id=existing_user.id)
     
-    # Validate password if provided
-    if user_update.password is not None:
-        if not validate_password(user_update.password):
-            raise InvalidPasswordError()
-        # Hash the new password
-        user_update.password = hash_password(user_update.password)
-    
     # Validate role if provided
-    if user_update.role is not None:
-        if not validate_role(user_update.role):
+    if user_input.role is not None:
+        if not validate_role(user_input.role):
             raise InvalidRoleError()
     
     # Update the user
-    updated_user = repository.update_user(id, user_update, db)
+    updated_user = repository.update_user(id, user_input, db)
     
     return models.UpdateUserResponse(
         id=updated_user.id,
@@ -105,6 +115,21 @@ def update_user_by_id(id: UUID, user_update: models.UpdateUserRequest, db: Sessi
         is_active=updated_user.is_active,
         message="User updated successfully"
     )
+
+def update_password_by_id(id: UUID, password_input: models.UpdatePasswordRequest, db: SessionDep):
+    """Update a user's password"""
+    from src.exceptions import UserNotFoundError, InvalidPasswordError
+    
+    user = repository.get_user_by_id(id, db)
+    if not user:
+        raise UserNotFoundError(user_id=id)
+    
+    if not verify_password(password_input.old_password, user.password_hash):
+        raise InvalidPasswordError()
+    
+    repository.update_password(id, password_input, db)
+    
+    return {"message": "Password updated successfully"}
 
 def delete_user_by_id(id: UUID, db: SessionDep):
     """Delete a user by ID"""
