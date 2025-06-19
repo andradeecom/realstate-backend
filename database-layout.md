@@ -159,3 +159,16 @@
 | primary_color   | string  | CSS color hex         |
 | secondary_color | string  |                       |
 | timezone        | string  | e.g., `Europe/Madrid` |
+
+## `reservations`
+
+| Field         | Type     | Description                              |
+| ------------- | -------- | ---------------------------------------- |
+| id            | UUID     | PK                                       |
+| property_id   | UUID     | FK	Links to properties.id                |
+| client_id     | UUID     | FK	The user (client) who reserved        |
+| reserved_from | date     | Start date of reservation                |
+| reserved_to   | date     | End date of reservation                  |
+| status        | enum     | pending, confirmed, cancelled, completed |
+| created_at    | datetime |                                          |
+| updated_at    | datetime |                                          |
