@@ -4,7 +4,7 @@ from . import models
 from . import repository
 from src.database.core import SessionDep
 from src.exceptions import UserAlreadyExistsError, InvalidPasswordError, InvalidEmailError, InvalidRoleError, UserCreationError
-from src.entities.user import User
+from src.entities.tenant_user import TenantUser as User
 from src.lib.utils import validate_email, validate_password, validate_role, hash_password, verify_password
 
 def create_user(user_input: models.CreateUserRequest, db: SessionDep) -> models.CreateUserResponse:

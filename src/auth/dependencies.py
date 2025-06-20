@@ -7,7 +7,7 @@ from pydantic import BaseModel
 import jwt
 
 from src.database.core import SessionDep
-from src.entities.user import User, UserRole
+from src.entities.tenant_user import TenantUser as User, UserRole
 from src.exceptions import ForbiddenError, CredentialsError
 from src.lib.utils import verify_auth_token
 

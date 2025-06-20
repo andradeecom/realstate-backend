@@ -1,5 +1,5 @@
 from uuid import UUID
-from src.entities.user import User
+from src.entities.tenant_user import TenantUser as User
 from src.database.core import SessionDep
 from sqlmodel import select
 from src.domain.users.models import UpdateUserRequest, UpdatePasswordRequest

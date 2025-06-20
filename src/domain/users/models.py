@@ -1,7 +1,7 @@
 from uuid import UUID
 from pydantic import BaseModel, EmailStr
 from typing import Optional
-from src.entities.user import UserRole
+from src.entities.tenant_user import UserRole
 
 class CreateUserRequest(BaseModel):
     username: Optional[str]

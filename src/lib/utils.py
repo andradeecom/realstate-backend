@@ -4,7 +4,7 @@ import jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Any
-from src.entities.user import UserRole
+from src.entities.tenant_user import TenantUser as UserRole
 import os
 from dotenv import load_dotenv
 

@@ -15,7 +15,9 @@ load_dotenv(env_file)
 engine = create_engine(os.getenv("DATABASE_URL"))
 
 # Define schemas
-GLOBAL_SCHEMA = "real_state_global"
+GLOBAL_SCHEMA = "public"
+# Need to create new schema for every new tenant
+TENANT_SCHEMA = "tenant"
 
 def create_schema(schema_name: str):
     """Create schema if it doesn't exist"""
@@ -32,13 +34,21 @@ def init_db():
     """Initialize the database with schemas and tables"""
     # Create schemas
     create_schema(GLOBAL_SCHEMA)
+    create_schema(TENANT_SCHEMA)
     
     # Create tables in global schema
-    from src.entities.user import User, Token
+    from src.entities import public_user, public_plan, public_tenant, public_stripe_account, public_domain_verification, tenant_user
     
-    # Set schema for User and Token models
-    User.__table__.schema = GLOBAL_SCHEMA
-    Token.__table__.schema = GLOBAL_SCHEMA
+    # Public schema tables
+    public_user.User.__table__.schema = GLOBAL_SCHEMA
+    public_user.Token.__table__.schema = GLOBAL_SCHEMA
+    public_plan.Plan.__table__.schema = GLOBAL_SCHEMA
+    public_tenant.Tenant.__table__.schema = GLOBAL_SCHEMA
+    public_stripe_account.StripeAccount.__table__.schema = GLOBAL_SCHEMA
+    public_domain_verification.DomainVerification.__table__.schema = GLOBAL_SCHEMA 
+
+    # Tenant schema tables
+    tenant_user.User.__table__.schema = TENANT_SCHEMA
     
     # Create all tables
     SQLModel.metadata.create_all(engine)

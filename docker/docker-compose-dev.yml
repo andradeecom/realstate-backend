@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16.0-alpine3.18
+    image: postgres:17.5-alpine3.22
     container_name: realstate_db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}

@@ -3,7 +3,7 @@ from uuid import UUID
 from src.database.core import SessionDep
 from src.domain.users import service, models
 from src.auth.dependencies import allow_superadmin_admin, allow_superadmin_admin_employee, allow_update_own_account
-from src.entities.user import User
+from src.entities.tenant_user import TenantUser as User
 
 router = APIRouter(
     prefix="/user",

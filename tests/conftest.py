@@ -8,7 +8,7 @@ from sqlmodel import create_engine, SQLModel, Session
 from sqlalchemy.schema import DropSchema
 from sqlalchemy.ext.compiler import compiles
 from src.domain.users.models import CreateUserRequest
-from src.entities.user import UserRole
+from src.entities.tenant_user import TenantUser as UserRole
 from src.lib.utils import generate_auth_token
 from datetime import timedelta
 
@@ -33,7 +33,7 @@ def db_session():
     create_schema(test_schema_name)
 
     # Import models here to avoid circular imports
-    from src.entities.user import User, Token
+    from src.entities.tenant_user import TenantUser as User, Token
 
     # Set schema for User and Token models
     User.__table__.schema = test_schema_name
@@ -66,7 +66,7 @@ def test_user_request():
 def admin_user(db_session):
     """Create an admin user for testing"""
     from src.lib.utils import crypt_context
-    from src.entities.user import User
+    from src.entities.tenant_user import TenantUser as User
     
     # Create admin user with properly hashed password
     admin = User(

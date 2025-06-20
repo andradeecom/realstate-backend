@@ -1,4 +1,4 @@
-from src.entities.user import Token, TokenResponse
+from src.entities.public_user import Token, TokenResponse
 from src.database.core import SessionDep
 from uuid import UUID
 from datetime import datetime, timedelta

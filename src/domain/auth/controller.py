@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from src.database.core import SessionDep
 from . import service, models
-from src.entities.user import User
+from src.entities.tenant_user import TenantUser as User
 from src.auth.dependencies import get_current_user
 
 router = APIRouter(
