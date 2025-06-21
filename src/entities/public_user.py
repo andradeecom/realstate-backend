@@ -1,6 +1,6 @@
 from uuid import UUID, uuid4
 from datetime import datetime
-from typing import Optional, Dict, Any, Annotated
+from typing import Optional
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import EmailStr, ConfigDict, field_serializer
 from enum import Enum
@@ -29,40 +29,5 @@ class PublicUser(SQLModel, table=True):
     )
     
     @field_serializer('created_at', 'updated_at')
-    def serialize_datetime(self, dt: datetime) -> str:
-        return dt.isoformat()
-
-class Token(SQLModel, table=True):
-    __tablename__ = "token"
-    
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    access_token: str
-    refresh_token: str
-    token_type: str = "Bearer"
-    expires_at: datetime
-    created_at: datetime = Field(default_factory=datetime.now)
-    
-    # One-to-one relationship with User
-    user_id: UUID = Field(foreign_key="user.id", unique=True)
-    user: "PublicUser" = Relationship(back_populates="token")
-    
-    model_config = ConfigDict(
-        arbitrary_types_allowed=True,
-    )
-    
-    @field_serializer('expires_at', 'created_at')
-    def serialize_datetime(self, dt: datetime) -> str:
-        return dt.isoformat()
-
-# Simple DTO for token responses
-class TokenResponse(SQLModel):
-    access_token: str
-    refresh_token: str
-    token_type: str = "Bearer"
-    expires_at: datetime
-    
-    model_config = ConfigDict()
-    
-    @field_serializer('expires_at')
     def serialize_datetime(self, dt: datetime) -> str:
         return dt.isoformat()

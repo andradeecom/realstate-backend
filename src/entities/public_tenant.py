@@ -1,17 +1,11 @@
 from uuid import UUID, uuid4
 from datetime import datetime
-from typing import Optional, Dict, Any, Annotated
+from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
-from pydantic import  ConfigDict, field_serializer
-
+from pydantic import ConfigDict, field_serializer
 
 class Tenant(SQLModel, table=True):
     __tablename__ = "tenant"
-    
-    from src.entities import public_plan
-    from src.entities import public_stripe_account
-
-
     
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     name: str = Field(min_length=3, max_length=50)
@@ -23,10 +17,12 @@ class Tenant(SQLModel, table=True):
     # Foreign key to Plan
     plan_id: UUID = Field(nullable=False, foreign_key="plan.id")
 
-    # One-to-many relationship with Token
-    plan: Optional[public_plan.Plan] = Relationship(back_populates="tenant")
-    # One-to-one relationship with StripeAccount
-    stripe_account: Optional[public_stripe_account.StripeAccount] = Relationship(back_populates="tenant", sa_relationship_kwargs={"uselist": False})
+    # One-to-many relationship with Plan using string-based forward reference
+    plan: Optional["Plan"] = Relationship(back_populates="tenants")
+    # One-to-one relationship with StripeAccount using string-based forward reference
+    stripe_account: Optional["StripeAccount"] = Relationship(back_populates="tenant", sa_relationship_kwargs={"uselist": False})
+    # One-to-one relationship with DomainVerification using string-based forward reference
+    domain_verification: Optional["DomainVerification"] = Relationship(back_populates="tenant", sa_relationship_kwargs={"uselist": False})
     
     # formatting the datetime fields
     model_config = ConfigDict(

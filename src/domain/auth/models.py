@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from uuid import UUID
 from src.entities.tenant_user import UserRole
-from src.entities.public_user import TokenResponse
+from src.entities.public_token import TokenResponse
 
 class SignupRequest(BaseModel):
     username: Optional[str]
